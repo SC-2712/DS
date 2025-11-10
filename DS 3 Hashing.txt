@@ -1,0 +1,261 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define TABLE_SIZE 20
+#define NAME_LEN 50
+
+typedef struct {
+    char name[NAME_LEN];
+    long long phone;
+    int isOccupied;
+} Client;
+
+Client table[TABLE_SIZE];
+
+int hashFunction(char *name) {
+    int sum = 0;
+    for (int i = 0; name[i] != '\0'; i++)
+        sum += name[i];
+    return sum % TABLE_SIZE;
+}
+
+int hashFunction2(char *name) {
+    int sum = 0;
+    for (int i = 0; name[i] != '\0'; i++)
+        sum += (i + 1) * name[i];
+    return (7 - (sum % 7));
+}
+
+void insertLinear(char *name, long long phone) {
+    int index = hashFunction(name);
+    int start = index;
+
+    while (table[index].isOccupied) {
+        index = (index + 1) % TABLE_SIZE;
+        if (index == start) {
+            printf("Hash table is full!\n");
+            return;
+        }
+    }
+    strcpy(table[index].name, name);
+    table[index].phone = phone;
+    table[index].isOccupied = 1;
+
+    printf("Inserted at index %d (Linear Probing)\n", index);
+}
+
+void insertQuadratic(char *name, long long phone) {
+    int index = hashFunction(name);
+    int i = 1;
+
+    while (table[index].isOccupied) {
+        index = (index + i * i) % TABLE_SIZE;
+        i++;
+        if (i == TABLE_SIZE) {
+            printf("Hash table is full!\n");
+            return;
+        }
+    }
+    strcpy(table[index].name, name);
+    table[index].phone = phone;
+    table[index].isOccupied = 1;
+
+    printf("Inserted at index %d (Quadratic Probing)\n", index);
+}
+
+void insertDoubleHash(char *name, long long phone) {
+    int index = hashFunction(name);
+    int step = hashFunction2(name);
+    int start = index;
+
+    while (table[index].isOccupied) {
+        index = (index + step) % TABLE_SIZE;
+        if (index == start) {
+            printf("Hash table is full!\n");
+            return;
+        }
+    }
+    strcpy(table[index].name, name);
+    table[index].phone = phone;
+    table[index].isOccupied = 1;
+
+    printf("Inserted at index %d (Double Hashing)\n", index);
+}
+
+void search(char *name) {
+    int index = hashFunction(name);
+    int step = hashFunction2(name);
+    int quadraticIndex = index;
+    int i = 1, count = 0;
+
+    while (count < TABLE_SIZE) {
+        if (table[index].isOccupied && strcmp(table[index].name, name) == 0) {
+            printf("Found at index %d → Phone: %lld\n", index, table[index].phone);
+            return;
+        }
+
+        index = (index + 1) % TABLE_SIZE;
+        quadraticIndex = (quadraticIndex + i * i) % TABLE_SIZE;
+        i++;
+
+        count++;
+    }
+    printf("Client not found!\n");
+}
+
+void display() {
+    printf("\n--- Hash Table ---\n");
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        if (table[i].isOccupied)
+            printf("%d | %s → %lld\n", i, table[i].name, table[i].phone);
+        else
+            printf("%d | --- Empty ---\n", i);
+    }
+}
+
+int main() {
+    int choice;
+    char name[NAME_LEN];
+    long long phone;
+
+    for (int i = 0; i < TABLE_SIZE; i++)
+        table[i].isOccupied = 0;
+
+    while (1) {
+        printf("\n1. Insert (Linear Probing)");
+        printf("\n2. Insert (Quadratic Probing)");
+        printf("\n3. Insert (Double Hashing)");
+        printf("\n4. Search Client");
+        printf("\n5. Display Table");
+        printf("\n6. Exit");
+        printf("\nEnter choice: ");
+        scanf("%d", &choice);
+
+        if (choice == 6) break;
+
+        switch (choice) {
+            case 1:
+                printf("Enter Name: ");
+                scanf("%s", name);
+                printf("Enter Phone: ");
+                scanf("%lld", &phone);
+                insertLinear(name, phone);
+                break;
+
+            case 2:
+                printf("Enter Name: ");
+                scanf("%s", name);
+                printf("Enter Phone: ");
+                scanf("%lld", &phone);
+                insertQuadratic(name, phone);
+                break;
+
+            case 3:
+                printf("Enter Name: ");
+                scanf("%s", name);
+                printf("Enter Phone: ");
+                scanf("%lld", &phone);
+                insertDoubleHash(name, phone);
+                break;
+
+            case 4:
+                printf("Enter Name to Search: ");
+                scanf("%s", name);
+                search(name);
+                break;
+
+            case 5:
+                display();
+                break;
+
+            default:
+                printf("Invalid Choice!\n");
+        }
+    }
+    return 0;
+}
+
+
+OUTPUT
+
+1. Insert (Linear Probing)
+2. Insert (Quadratic Probing)
+3. Insert (Double Hashing)
+4. Search Client
+5. Display Table
+6. Exit
+Enter choice: 1
+Enter Name: Ram
+Enter Phone: 9876543210
+Inserted at index 6 (Linear Probing)
+
+1. Insert (Linear Probing)
+2. Insert (Quadratic Probing)
+3. Insert (Double Hashing)
+4. Search Client
+5. Display Table
+6. Exit
+Enter choice: 2
+Enter Name: Shyam
+Enter Phone: 9123456780
+Inserted at index 14 (Quadratic Probing)
+
+1. Insert (Linear Probing)
+2. Insert (Quadratic Probing)
+3. Insert (Double Hashing)
+4. Search Client
+5. Display Table
+6. Exit
+Enter choice: 3
+Enter Name: Ritu
+Enter Phone: 9988776655
+Inserted at index 9 (Double Hashing)
+
+1. Insert (Linear Probing)
+2. Insert (Quadratic Probing)
+3. Insert (Double Hashing)
+4. Search Client
+5. Display Table
+6. Exit
+Enter choice: 5
+
+--- Hash Table ---
+0 | --- Empty ---
+1 | --- Empty ---
+2 | --- Empty ---
+3 | --- Empty ---
+4 | --- Empty ---
+5 | --- Empty ---
+6 | Ram → 9876543210
+7 | --- Empty ---
+8 | --- Empty ---
+9 | Ritu → 9988776655
+10 | --- Empty ---
+11 | --- Empty ---
+12 | --- Empty ---
+13 | --- Empty ---
+14 | Shyam → 9123456780
+15 | --- Empty ---
+16 | --- Empty ---
+17 | --- Empty ---
+18 | --- Empty ---
+19 | --- Empty ---
+
+1. Insert (Linear Probing)
+2. Insert (Quadratic Probing)
+3. Insert (Double Hashing)
+4. Search Client
+5. Display Table
+6. Exit
+Enter choice: 4
+Enter Name to Search: Ritu
+Found at index 9 → Phone: 9988776655
+
+1. Insert (Linear Probing)
+2. Insert (Quadratic Probing)
+3. Insert (Double Hashing)
+4. Search Client
+5. Display Table
+6. Exit
+Enter choice: 6
