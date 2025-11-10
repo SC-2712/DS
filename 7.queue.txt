@@ -1,0 +1,93 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX 5  // maximum number of orders
+
+struct Queue {
+    int front, rear;
+    char orders[MAX][50];
+};
+
+void init(struct Queue *q) {
+    q->front = -1;
+    q->rear = -1;
+}
+
+int isFull(struct Queue *q) {
+    return (q->rear == MAX - 1);
+}
+
+int isEmpty(struct Queue *q) {
+    return (q->front == -1 || q->front > q->rear);
+}
+
+void addOrder(struct Queue *q, char name[]) {
+    if (isFull(q)) {
+        printf("Queue full! Cannot accept more orders.\n");
+        return;
+    }
+    if (q->front == -1)
+        q->front = 0;
+    q->rear++;
+    strcpy(q->orders[q->rear], name);
+    printf("Order added: %s\n", name);
+}
+
+void serveOrder(struct Queue *q) {
+    if (isEmpty(q)) {
+        printf("No pending orders!\n");
+        return;
+    }
+    printf("Order served: %s\n", q->orders[q->front]);
+    q->front++;
+    if (q->front > q->rear)
+        q->front = q->rear = -1;
+}
+
+void displayOrders(struct Queue *q) {
+    if (isEmpty(q)) {
+        printf("No pending orders!\n");
+        return;
+    }
+    printf("\nPending Orders:\n");
+    for (int i = q->front; i <= q->rear; i++)
+        printf("%d. %s\n", i - q->front + 1, q->orders[i]);
+}
+
+int main() {
+    struct Queue q;
+    init(&q);
+    int choice;
+    char name[50];
+
+    while (1) {
+        printf("\n--- Pizza Parlor Queue ---\n");
+        printf("1. Add Order\n");
+        printf("2. Serve Order\n");
+        printf("3. Display Pending Orders\n");
+        printf("4. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter customer name: ");
+                scanf("%s", name);
+                addOrder(&q, name);
+                break;
+            case 2:
+                serveOrder(&q);
+                break;
+            case 3:
+                displayOrders(&q);
+                break;
+            case 4:
+                exit(0);
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+
+    return 0;
+}

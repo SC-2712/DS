@@ -1,0 +1,191 @@
+// Online C compiler to run C program online
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct node {
+    int prn;
+    char name[50];
+    struct node *next;
+};
+
+struct node* createNode(int prn, char name[]) {
+    struct node* newNode = (struct node*)malloc(sizeof(struct node));
+    newNode->prn = prn;
+    strcpy(newNode->name, name);
+    newNode->next = NULL;
+    return newNode;
+}
+
+struct node* addPresident(struct node* head, int prn, char name[]) {
+    struct node* newNode = createNode(prn, name);
+    newNode->next = head;
+    return newNode;
+}
+
+struct node* addSecretary(struct node* head, int prn, char name[]) {
+    struct node* newNode = createNode(prn, name);
+    if (head == NULL)
+        return newNode;
+    struct node* temp = head;
+    while (temp->next != NULL)
+        temp = temp->next;
+    temp->next = newNode;
+    return head;
+}
+
+struct node* addMember(struct node* head, int prn, char name[]) {
+    if (head == NULL) {
+        printf("First add a president.\n");
+        return head;
+    }
+    struct node* newNode = createNode(prn, name);
+    struct node* temp = head;
+    while (temp->next != NULL && temp->next->next != NULL)
+        temp = temp->next;
+    newNode->next = temp->next;
+    temp->next = newNode;
+    return head;
+}
+
+struct node* deletePresident(struct node* head) {
+    if (head == NULL)
+        return NULL;
+    struct node* temp = head;
+    head = head->next;
+    free(temp);
+    return head;
+}
+
+struct node* deleteSecretary(struct node* head) {
+    if (head == NULL || head->next == NULL)
+        return NULL;
+    struct node* temp = head;
+    while (temp->next->next != NULL)
+        temp = temp->next;
+    free(temp->next);
+    temp->next = NULL;
+    return head;
+}
+
+struct node* deleteMember(struct node* head, int prn) {
+    if (head == NULL)
+        return NULL;
+    struct node *temp = head, *prev = NULL;
+    while (temp != NULL && temp->prn != prn) {
+        prev = temp;
+        temp = temp->next;
+    }
+    if (temp == NULL)
+        return head;
+    if (prev != NULL)
+        prev->next = temp->next;
+    free(temp);
+    return head;
+}
+
+void display(struct node* head) {
+    if (head == NULL) {
+        printf("No members in the club.\n");
+        return;
+    }
+    struct node* temp = head;
+    printf("\nClub Members:\n");
+    while (temp != NULL) {
+        printf("PRN: %d\tName: %s\n", temp->prn, temp->name);
+        temp = temp->next;
+    }
+}
+
+int countMembers(struct node* head) {
+    int count = 0;
+    struct node* temp = head;
+    while (temp != NULL) {
+        count++;
+        temp = temp->next;
+    }
+    return count;
+}
+
+struct node* concatenate(struct node* head1, struct node* head2) {
+    if (head1 == NULL)
+        return head2;
+    struct node* temp = head1;
+    while (temp->next != NULL)
+        temp = temp->next;
+    temp->next = head2;
+    return head1;
+}
+
+int main() {
+    struct node *divA = NULL, *divB = NULL, *merged = NULL;
+    int choice, prn;
+    char name[50];
+
+    while (1) {
+        printf("\n--- Pinnacle Club Menu ---\n");
+        printf("1. Add President (Div A)\n");
+        printf("2. Add Member (Div A)\n");
+        printf("3. Add Secretary (Div A)\n");
+        printf("4. Delete President (Div A)\n");
+        printf("5. Delete Member (Div A)\n");
+        printf("6. Delete Secretary (Div A)\n");
+        printf("7. Display Division A\n");
+        printf("8. Create Division B and Concatenate\n");
+        printf("9. Display All Members (Merged)\n");
+        printf("10. Count Members (Merged)\n");
+        printf("11. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter PRN and Name: ");
+                scanf("%d %s", &prn, name);
+                divA = addPresident(divA, prn, name);
+                break;
+            case 2:
+                printf("Enter PRN and Name: ");
+                scanf("%d %s", &prn, name);
+                divA = addMember(divA, prn, name);
+                break;
+            case 3:
+                printf("Enter PRN and Name: ");
+                scanf("%d %s", &prn, name);
+                divA = addSecretary(divA, prn, name);
+                break;
+            case 4:
+                divA = deletePresident(divA);
+                break;
+            case 5:
+                printf("Enter PRN to delete: ");
+                scanf("%d", &prn);
+                divA = deleteMember(divA, prn);
+                break;
+            case 6:
+                divA = deleteSecretary(divA);
+                break;
+            case 7:
+                display(divA);
+                break;
+            case 8:
+                divB = addPresident(divB, 101, "David");
+                divB = addMember(divB, 102, "Eve");
+                divB = addSecretary(divB, 103, "Frank");
+                merged = concatenate(divA, divB);
+                printf("Divisions concatenated successfully.\n");
+                break;
+            case 9:
+                display(merged);
+                break;
+            case 10:
+                printf("Total Members: %d\n", countMembers(merged));
+                break;
+            case 11:
+                exit(0);
+            default:
+                printf("Invalid choice.\n");
+        }
+    }
+    return 0;
+}
